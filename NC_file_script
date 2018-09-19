@@ -29,17 +29,53 @@ lon_u <- ncvar_get(kaldfjord, kaldfjord$var$lon_u)
 u <- ncvar_get(kaldfjord, kaldfjord$var$u)
 u_slice <- u[,,35] ## retain only the surface slice (=35)
 
+## get the v variable
+lat_v <- ncvar_get(kaldfjord, kaldfjord$var$lat_v)
+lon_v <- ncvar_get(kaldfjord, kaldfjord$var$lon_v)
+v <- ncvar_get(kaldfjord, kaldfjord$var$v)
+v_slice <- v[,,35] ## retain only the surface slice (=35)
+
+
 ## combine lon,lat,u in an array
-u_array <- array(c(lon_u,lat_u, u_slice),dim = c(dim(lat_u),3)) # [row,column,matrix]
+#u_array <- array(c(lon_u,lat_u, u_slice),dim = c(dim(lat_u),3)) # [row,column,matrix]
 
 ## close the NC file (continue working on u_array)
 nc_close(kaldfjord)
 
-## image of the variable u
-image(u_array[,,3])
+## create xyz dataframe
+u_df <- data.frame("lon"=as.vector(lon_u),"lat"=as.vector(lat_u),"u"=as.vector(u_slice))
+v_df <- data.frame("lon"=as.vector(lon_v),"lat"=as.vector(lat_v),"v"=as.vector(v_slice))
+## convert to UTM
+    ### add utm coords
+    add_utm <- function(data){
+     llcoord <- SpatialPoints(as.data.frame(data[,c("lon","lat")]), #5,4
+                               proj4string=CRS("+proj=longlat +ellps=WGS84"))
+      
+      ## convert to UTM
+      utmcoord <- spTransform(llcoord, CRS("+proj=utm +zone=34 ellps=WGS84 +units=m"))
+      
+      ## attach projected coords to gps2 dataframe
+      data$UTMX <- attr(utmcoord,"coords")[,1]
+      data$UTMY <- attr(utmcoord,"coords")[,2]
+      data
+    }
+u_df <- add_utm(u_df)
+v_df <- add_utm(v_df)
 
+## create raster
+NC_raster <- function(df){
+    ## extent object from u
+    ex <- extent(min(df$UTMX),max(df$UTMX),min(df$UTMY),max(df$UTMY))
+    ## empty raster
+    r <- raster(ex,ncol=392, nrow=392) # sqrt(275^2+279^2)
+    ## fill raster with xyz data
+    r2 <- rasterize(df[,c("UTMX","UTMY")],r,df[,3], fun=mean)
+    return(r2)
+}
 
+u_raster <- NC_raster(u_df)
+v_raster <- NC_raster(v_df)
 
-## some literature
-# https://rpubs.com/boyerag/297592
-# https://gis.stackexchange.com/questions/120900/plotting-netcdf-file-using-lat-and-lon-contained-in-variables
+## plot rasters
+plot(u_raster)
+plot(v_raster)
