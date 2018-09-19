@@ -1,0 +1,39 @@
+###############################################
+#                                             #                                            
+#   KALDFJORD NORFJORDS MODEL NOV/DEC 2014    #
+#                                             #
+###############################################
+## library
+library(ncdf4)
+
+## set working directory
+setwd("C:/Work/PhD_Vista/DATA_TROMSØ/Kaldfjord_160m_2014")
+
+## what files are in the folder?
+dates <- dir()
+
+## open data
+kaldfjord <- nc_open(dates[1])
+
+## Show variable names
+attributes(kaldfjord$var)
+
+## get some more detailed info about one of the variables
+names(kaldfjord$var$u)
+## and (e.g.):
+kaldfjord$var$v$longname
+
+## get the u variable
+lat_u <- ncvar_get(kaldfjord, kaldfjord$var$lat_u)
+lon_u <- ncvar_get(kaldfjord, kaldfjord$var$lon_u) 
+u <- ncvar_get(kaldfjord, kaldfjord$var$u)
+u_slice <- u[,,35] ## retain only the surface slice (=35)
+
+## combine lon,lat,u in an array
+u_array <- array(c(lon_u,lat_u, u_slice),dim = c(dim(lat_u),3)) # [row,column,matrix]
+
+image(u_array[,,3])
+
+nc_close(kaldfjord)
+# https://rpubs.com/boyerag/297592
+# https://gis.stackexchange.com/questions/120900/plotting-netcdf-file-using-lat-and-lon-contained-in-variables
