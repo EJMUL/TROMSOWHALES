@@ -32,8 +32,14 @@ u_slice <- u[,,35] ## retain only the surface slice (=35)
 ## combine lon,lat,u in an array
 u_array <- array(c(lon_u,lat_u, u_slice),dim = c(dim(lat_u),3)) # [row,column,matrix]
 
+## close the NC file (continue working on u_array)
+nc_close(kaldfjord)
+
+## image of the variable u
 image(u_array[,,3])
 
-nc_close(kaldfjord)
+
+
+## some literature
 # https://rpubs.com/boyerag/297592
 # https://gis.stackexchange.com/questions/120900/plotting-netcdf-file-using-lat-and-lon-contained-in-variables
