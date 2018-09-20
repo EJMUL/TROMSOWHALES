@@ -6,6 +6,7 @@
 ## library
 library(ncdf4)
 
+
 ## set working directory
 setwd("C:/Work/PhD_Vista/DATA_TROMSØ/Kaldfjord_160m_2014")
 
