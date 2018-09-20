@@ -3,6 +3,7 @@
 #   KALDFJORD NORFJORDS MODEL NOV/DEC 2014    #
 #                                             #
 ###############################################
+testtest
 ## library
 library(ncdf4)
 
