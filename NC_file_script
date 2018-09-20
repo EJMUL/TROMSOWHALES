@@ -3,13 +3,11 @@
 #   KALDFJORD NORFJORDS MODEL NOV/DEC 2014    #
 #                                             #
 ###############################################
-testtest
-testtest
 ## library
 library(ncdf4)
 
 ## set working directory
-setwd("C:/Work/PhD_Vista/DATA_TROMSÃ˜/Kaldfjord_160m_2014")
+setwd("C:/Work/PhD_Vista/DATA_TROMSØ/Kaldfjord_160m_2014")
 
 ## what files are in the folder?
 dates <- dir()
